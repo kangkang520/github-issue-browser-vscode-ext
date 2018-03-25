@@ -1,0 +1,111 @@
+{
+	"name": "github-issues-browser",
+	"displayName": "github-issues-browser",
+	"description": "github issues browser",
+	"version": "1.0.2",
+	"publisher": "luyizhi",
+	"engines": {
+		"vscode": "^1.21.0"
+	},
+	"categories": [
+		"Other"
+	],
+	"activationEvents": [
+		"onView:githubIssueBrowser"
+	],
+	"main": "./out/extension",
+	"contributes": {
+		"commands": [
+			{
+				"command": "gitissue.addIssue",
+				"title": "新问题",
+				"icon": {
+					"light": "res/add-dark.svg",
+					"dark": "res/add-light.svg"
+				}
+			},
+			{
+				"command": "gitissue.viewOnWeb",
+				"title": "打开(网页)"
+			},
+			{
+				"command": "gitissue.viewOnCommand",
+				"title": "打开(控制台)"
+			},
+			{
+				"command": "gitissue.refreshIssues",
+				"title": "刷新",
+				"icon": {
+					"light": "res/refresh-dark.svg",
+					"dark": "res/refresh-light.svg"
+				}
+			},
+			{
+				"command": "gitissue.setGithubToken",
+				"title": "设置token",
+				"icon": {
+					"light": "res/token-dark.svg",
+					"dark": "res/token-light.svg"
+				}
+			}
+		],
+		"views": {
+			"explorer": [
+				{
+					"id": "githubIssueBrowser",
+					"name": "GitHub问题列表"
+				}
+			]
+		},
+		"menus": {
+			"view/title": [
+				{
+					"command": "gitissue.addIssue",
+					"when": "view == githubIssueBrowser",
+					"group": "navigation@3"
+				},
+				{
+					"command": "gitissue.refreshIssues",
+					"when": "view == githubIssueBrowser",
+					"group": "navigation@2"
+				},
+				{
+					"command": "gitissue.setGithubToken",
+					"when": "view == githubIssueBrowser",
+					"group": "navigation@1"
+				}
+			],
+			"view/item/context": [
+				{
+					"command": "gitissue.viewOnWeb",
+					"when": "//view == githubIssueBrowser && viewItem == openedIssue"
+				},
+				{
+					"command": "gitissue.viewOnCommand",
+					"when": "//view == githubIssueBrowser && viewItem == openedIssue"
+				}
+			]
+		},
+		"markdown.markdownItPlugins": true
+	},
+	"scripts": {
+		"vscode:prepublish": "npm run compile",
+		"compile": "tsc -p ./",
+		"watch": "tsc -watch -p ./",
+		"postinstall": "node ./node_modules/vscode/bin/install",
+		"test": "npm run compile && node ./node_modules/vscode/bin/test"
+	},
+	"devDependencies": {
+		"@types/highlight.js": "^9.12.2",
+		"@types/markdown-it": "0.0.4",
+		"@types/mocha": "^2.2.42",
+		"@types/node": "^7.0.43",
+		"typescript": "^2.6.1",
+		"vscode": "^1.1.6"
+	},
+	"dependencies": {
+		"ghissues": "^1.1.3",
+		"highlight.js": "^9.12.0",
+		"markdown-it": "^8.4.1"
+	}
+}
