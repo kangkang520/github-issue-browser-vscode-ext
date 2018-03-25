@@ -7,3 +7,4 @@ package-lock.json
 vsc-extension-quickstart.md
 src/test
 res/*.json
+*.vsix

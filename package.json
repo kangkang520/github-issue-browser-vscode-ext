@@ -88,6 +88,10 @@
 		},
 		"markdown.markdownItPlugins": true
 	},
+	"repository": {
+		"type": "github",
+		"url": "https://github.com/kangkang520/github-issue-browser-vscode-ext.git"
+	},
 	"scripts": {
 		"vscode:prepublish": "npm run compile",
 		"compile": "tsc -p ./",
