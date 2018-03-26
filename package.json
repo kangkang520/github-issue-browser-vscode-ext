@@ -2,12 +2,13 @@
 	"name": "github-issue-browser",
 	"displayName": "GitHub问题浏览器",
 	"description": "GitHub问题浏览器",
-	"version": "1.0.4",
+	"version": "1.1.0",
 	"publisher": "luyizhi",
 	"engines": {
 		"vscode": "^1.17.0"
 	},
 	"categories": [
+		"Languages",
 		"Other"
 	],
 	"activationEvents": [
@@ -18,7 +19,7 @@
 		"commands": [
 			{
 				"command": "gitissue.addIssue",
-				"title": "新问题",
+				"title": "发表问题",
 				"icon": {
 					"light": "res/add-dark.svg",
 					"dark": "res/add-light.svg"
@@ -26,11 +27,11 @@
 			},
 			{
 				"command": "gitissue.viewOnCommand",
-				"title": "打开(控制台)"
+				"title": "浏览问题"
 			},
 			{
 				"command": "gitissue.refreshIssues",
-				"title": "刷新",
+				"title": "刷新列表",
 				"icon": {
 					"light": "res/refresh-dark.svg",
 					"dark": "res/refresh-light.svg"
@@ -43,6 +44,10 @@
 					"light": "res/token-dark.svg",
 					"dark": "res/token-light.svg"
 				}
+			},
+			{
+				"command": "gitissue.addComment",
+				"title": "发起评论"
 			}
 		],
 		"views": {
@@ -70,8 +75,34 @@
 					"when": "view == githubIssueBrowser",
 					"group": "navigation@1"
 				}
+			],
+			"view/item/context": [
+				{
+					"command": "gitissue.addComment",
+					"when": "view == githubIssueBrowser && viewItem == openedIssue",
+					"group": "githubIssueBrowser@1"
+				}
 			]
-		}
+		},
+		"languages": [
+			{
+				"id": "github-issue-browser",
+				"mimetypes": [
+					"log",
+					"text/log",
+					"text/x-log",
+					"text/x-code-output",
+					"x-code-output"
+				]
+			}
+		],
+		"grammars": [
+			{
+				"language": "github-issue-browser",
+				"scopeName": "code.log",
+				"path": "./syntaxes/github-issue-browser.tmLanguage"
+			}
+		]
 	},
 	"repository": {
 		"type": "github",
@@ -99,15 +130,8 @@
 	"keywords": [
 		"github",
 		"issues",
-		"问题",
-		"browser",
-		"list",
-		"view",
-		"scan",
 		"issue",
-		"token",
-		"add",
-		"create",
-		"notice"
+		"browser",
+		"git"
 	]
 }
