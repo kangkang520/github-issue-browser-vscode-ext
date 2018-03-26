@@ -1,1 +1,0 @@
-window.targetSrc="https://github.com/kangkang520/ship-win/issues/6"
