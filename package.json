@@ -1,11 +1,11 @@
 {
-	"name": "github-issues-browser",
-	"displayName": "github-issues-browser",
-	"description": "github issues browser",
-	"version": "1.0.2",
+	"name": "github-issue-browser",
+	"displayName": "GitHub问题浏览器",
+	"description": "GitHub问题浏览器",
+	"version": "1.0.3",
 	"publisher": "luyizhi",
 	"engines": {
-		"vscode": "^1.21.0"
+		"vscode": "^1.17.0"
 	},
 	"categories": [
 		"Other"
@@ -23,10 +23,6 @@
 					"light": "res/add-dark.svg",
 					"dark": "res/add-light.svg"
 				}
-			},
-			{
-				"command": "gitissue.viewOnWeb",
-				"title": "打开(网页)"
 			},
 			{
 				"command": "gitissue.viewOnCommand",
@@ -74,19 +70,8 @@
 					"when": "view == githubIssueBrowser",
 					"group": "navigation@1"
 				}
-			],
-			"view/item/context": [
-				{
-					"command": "gitissue.viewOnWeb",
-					"when": "//view == githubIssueBrowser && viewItem == openedIssue"
-				},
-				{
-					"command": "gitissue.viewOnCommand",
-					"when": "//view == githubIssueBrowser && viewItem == openedIssue"
-				}
 			]
-		},
-		"markdown.markdownItPlugins": true
+		}
 	},
 	"repository": {
 		"type": "github",
@@ -109,7 +94,20 @@
 	},
 	"dependencies": {
 		"ghissues": "^1.1.3",
-		"highlight.js": "^9.12.0",
-		"markdown-it": "^8.4.1"
-	}
+		"highlight.js": "^9.12.0"
+	},
+	"keywords": [
+		"github",
+		"issues",
+		"问题",
+		"browser",
+		"list",
+		"view",
+		"scan",
+		"issue",
+		"token",
+		"add",
+		"create",
+		"notice"
+	]
 }

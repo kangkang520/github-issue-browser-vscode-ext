@@ -1,5 +1,4 @@
 import * as vscode from 'vscode'
-import fetch from 'node-fetch'
 import * as path from 'path'
 import * as fs from 'fs'
 import * as ghissues from 'ghissues'
@@ -32,10 +31,7 @@ export class IssueProvider implements vscode.TreeDataProvider<DataNode> {
 	private _onDidChange: vscode.EventEmitter<DataNode> = new vscode.EventEmitter<DataNode>()
 	readonly onDidChangeTreeData = this._onDidChange.event;
 
-	private githubInfo = {
-		user: '',
-		repo: '',
-	}
+	private githubInfo = { user: '', repo: '' }
 
 	private _ghtoken = ''
 
@@ -59,6 +55,7 @@ export class IssueProvider implements vscode.TreeDataProvider<DataNode> {
 
 	//生成条目
 	public getTreeItem(elem: DataNode): vscode.TreeItem {
+		if (!this.hasGithubConfig) return { label: '当前项目非GitHub项目' }
 		if (elem.type == 'issue') return {
 			id: elem.id + '',
 			label: elem.title,
@@ -81,6 +78,7 @@ export class IssueProvider implements vscode.TreeDataProvider<DataNode> {
 
 	//获取孩子
 	public getChildren(elem: DataNode): vscode.ProviderResult<Array<DataNode>> {
+		if (!this.hasGithubConfig) return []
 		if (!elem) return [{ type: 'state', name: 'open' }, { type: 'state', name: 'closed' }]
 		else if (elem.type == 'state') {
 			let issues = this.issues[(elem as IStateNode).name]
@@ -103,10 +101,10 @@ export class IssueProvider implements vscode.TreeDataProvider<DataNode> {
 
 	//获取label对应的图片
 	private getLabelImage(labels: Array<string>) {
-		if (labels.indexOf('bug') >= 0) return 'bug.png'
-		if (labels.indexOf('question') >= 0) return 'question.png'
-		if (labels.indexOf('help wanted') >= 0) return 'require.png'
-		return 'other.png'
+		if (labels.indexOf('bug') >= 0) return 'bug.svg'
+		if (labels.indexOf('question') >= 0) return 'question.svg'
+		if (labels.indexOf('help wanted') >= 0) return 'require.svg'
+		return 'other.svg'
 	}
 
 	//获取GitHub token
@@ -145,31 +143,33 @@ export class IssueProvider implements vscode.TreeDataProvider<DataNode> {
 		if (!this.hasGithubConfig) return
 		this.issues[state] = null as any
 		this.refresh()
-		let result: Array<IIssueNode> = await fetch(`https://api.github.com/repos/${this.githubInfo.user}/${this.githubInfo.repo}/issues?state=${state}`).then(res => res.json())
-		this.issues[state] = result.map(i => ({
-			id: i.id,
-			title: i.title,
-			body: i.body,
-			labels: i.labels.map((l: any) => l.name),
-			number: i.number,
-			type: 'issue'
-		} as IIssueNode))
-		this.refresh()
-		if (state == 'open') {
-			let toast = false
-			let maxNumber = Math.max(...result.map(r => r.number))
-			let numberFile = this.contex.asAbsolutePath('res/number.json')
-			try {
-				if (!fs.existsSync(numberFile)) toast = true
-				else if (parseInt(fs.readFileSync(numberFile) + '') < maxNumber) toast = true
-			} catch (e) {
+		ghissues.list({}, this.githubInfo.user, this.githubInfo.repo, (err: Error, result: Array<IIssueNode>) => {
+			if (err) return vscode.window.showErrorMessage(err.message)
+			this.issues[state] = result.map(i => ({
+				id: i.id,
+				title: i.title,
+				body: i.body,
+				labels: i.labels.map((l: any) => l.name),
+				number: i.number,
+				type: 'issue'
+			} as IIssueNode))
+			this.refresh()
+			if (state == 'open') {
+				let toast = false
+				let maxNumber = Math.max(...result.map(r => r.number))
+				let numberFile = this.contex.asAbsolutePath('res/number.json')
+				try {
+					if (!fs.existsSync(numberFile)) toast = true
+					else if (parseInt(fs.readFileSync(numberFile) + '') < maxNumber) toast = true
+				} catch (e) {
+				}
+				if (toast) {
+					let issue = result.filter(r => r.number == maxNumber)[0]
+					vscode.window.showInformationMessage('新问题：' + issue.body)
+					this.setNumber(maxNumber)
+				}
 			}
-			if (toast) {
-				let issue = result.filter(r => r.number == maxNumber)[0]
-				vscode.window.showInformationMessage('新问题：' + issue.body)
-				this.setNumber(maxNumber)
-			}
-		}
+		})
 	}
 
 	private setNumber(nu: number) {
