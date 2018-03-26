@@ -1,7 +1,7 @@
 import * as vscode from 'vscode'
 import * as path from 'path'
 import * as fs from 'fs'
-import * as ghissues from 'ghissues'
+import * as ghutils from 'ghutils'
 
 export interface IIssueNode {
 	id: number
@@ -143,7 +143,7 @@ export class IssueProvider implements vscode.TreeDataProvider<DataNode> {
 		if (!this.hasGithubConfig) return
 		this.issues[state] = null as any
 		this.refresh()
-		ghissues.list({}, this.githubInfo.user, this.githubInfo.repo, (err: Error, result: Array<IIssueNode>) => {
+		ghutils.lister({ token: '' }, `https://api.github.com/repos/${this.githubInfo.user}/${this.githubInfo.repo}/issues?state=${state}`, {}, (err: Error, result: Array<IIssueNode>) => {
 			if (err) return vscode.window.showErrorMessage(err.message)
 			this.issues[state] = result.map(i => ({
 				id: i.id,
@@ -186,37 +186,30 @@ export class IssueProvider implements vscode.TreeDataProvider<DataNode> {
 
 	//添加问题
 	public async createIssue() {
-		try {
-			let token = await this.autoCreateToken()
-			if (!this.hasGithubConfig || !token) return
-			let title = await vscode.window.showInputBox({
-				prompt: '问题标题不要太长，20字以内',
-				placeHolder: '标题',
-				validateInput: str => (str && str.length > 20) ? '字数太多' : null
-			})
-			if (!title) return
-			let label = await vscode.window.showQuickPick(['Bug', '问题', '需求', '其它'], {
-				placeHolder: '类型'
-			})
-			if (!label) return
-			let body = await vscode.window.showInputBox({
-				placeHolder: '具体内容',
-				validateInput: str => (str && str.length < 5) ? '至少输入5个字' : null
-			})
-			if (!body) return
-			//提交数据
-			label = this.labelName(label)
-			ghissues.create({ token },
-				this.githubInfo.user, this.githubInfo.repo,
-				{ title, body, ...(label ? { labels: [label] } : {}) },
-				(err: Error, issue: IIssueNode) => {
-					if (err) return vscode.window.showErrorMessage(err.message)
-					setTimeout(() => this.loadIssues('open'), 1000)
-					this.setNumber(issue.number)
-				})
-		} catch (e) {
-			vscode.window.showErrorMessage(e.message)
-		}
+		let token = await this.autoCreateToken()
+		if (!this.hasGithubConfig || !token) return
+		let title = await vscode.window.showInputBox({
+			prompt: '问题标题不要太长，20字以内',
+			placeHolder: '标题',
+			validateInput: str => (str && str.length > 20) ? '字数太多' : null
+		})
+		if (!title) return
+		let label = await vscode.window.showQuickPick(['Bug', '问题', '需求', '其它'], {
+			placeHolder: '类型'
+		})
+		if (!label) return
+		let body = await vscode.window.showInputBox({
+			placeHolder: '具体内容',
+			validateInput: str => (str && str.length < 5) ? '至少输入5个字' : null
+		})
+		if (!body) return
+		//提交数据
+		label = this.labelName(label)
+		ghutils.ghpost({ token }, `https://api.github.com/repos/${this.githubInfo.user}/${this.githubInfo.repo}/issues`, { title, body, ...(label ? { labels: [label] } : {}) }, {}, (err: Error, issue: IIssueNode) => {
+			if (err) return vscode.window.showErrorMessage(err.message)
+			setTimeout(() => this.loadIssues('open'), 1000)
+			this.setNumber(issue.number)
+		})
 	}
 
 	public getIssueUrl(number: number): string {
