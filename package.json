@@ -2,7 +2,7 @@
 	"name": "github-issue-browser",
 	"displayName": "GitHub问题浏览器",
 	"description": "GitHub问题浏览器",
-	"version": "1.1.0",
+	"version": "1.1.1",
 	"publisher": "luyizhi",
 	"engines": {
 		"vscode": "^1.17.0"
